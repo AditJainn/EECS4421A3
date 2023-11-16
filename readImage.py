@@ -73,14 +73,14 @@ for i in range(0,numberOfNodes):
     # print(v.x)
     cv2.circle(map, (v.x,v.y), 3, v.color, thickness=-1)
 
-
-
 #=========================================================================
 
-def findDistace (v1, v2):
-    distance = math.sqrt((v1.x - v2.x)**2 + (v2.y - v1.y)**2)
+# GET THE DISTANCE BETWEEN TWO POINTS
+def findDistace (p1, p2):
+    distance = math.sqrt((p1.x - p2.x)**2 + (p2.y - p1.y)**2)
     return distance
 
+# FIND THE CLOSEST VERTEX TO OUR POINT
 def findClosetVertex(exploredList, newVertex): 
     closestVertex = 0 
     distance = -1 
@@ -92,6 +92,7 @@ def findClosetVertex(exploredList, newVertex):
 def drawLine(v1,v2):
     cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), (0,0,0), thickness=2)
 
+# FIND THE CLOSEST POINT TO THE ENTIRE GRAPH
 def findClosetNodeToGraph(exploredVertexList,listOfVertix):
     newConnection = 0 # This will be two different vertexes we will be returning
     smallestDistance = -1 
@@ -101,7 +102,7 @@ def findClosetNodeToGraph(exploredVertexList,listOfVertix):
             if smallestDistance == -1 or calculateDistance < smallestDistance:
                 smallestDistance = calculateDistance
                 newConnection = (exploredV,unexploredVertix)
-
+    #return the new "line"
     return newConnection
 
 exploredVertexList = []
@@ -113,9 +114,12 @@ cv2.circle(map, (startVertex.x,startVertex.y), 6, (0,255,0), thickness=-1)
 exploredVertexList.append(startVertex)
 
 while(len(listOfVertix) > 0 ): 
-    graphNode, newNode= findClosetNodeToGraph(exploredVertexList, listOfVertix)
+    graphNode, newNode = findClosetNodeToGraph(exploredVertexList, listOfVertix)
     
-    drawLine(graphNode,newNode)
+
+    if line_color_intersection(map, graphNode, newNode):
+        drawLine(graphNode,newNode) 
+    
     exploredVertexList.append(newNode)
     listOfVertix.remove(newNode)
     
