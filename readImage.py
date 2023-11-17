@@ -4,7 +4,7 @@ import math
 import random
 from scipy.spatial import KDTree
 
-numberOfNodes = 1000
+numberOfNodes = 1500
 
 # colour scheme
 purple = (86,70,115)
@@ -15,7 +15,7 @@ red = (70,78,166)
 
 
 class point:
-    def __init__(self, x, y,next = None, prev = None,radius = 10):
+    def __init__(self, x, y,next = None, prev = None,radius = 1):
         self.x = x
         self.y = y
         self.next = next
@@ -80,7 +80,7 @@ def line_color_intersection(map, v1, v2):
 
 # first need to define the list of generated points
 
-map = cv2.imread('b6.jpg')
+map = cv2.imread('pentagonMini.jpg')
 
 
 randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
@@ -92,7 +92,7 @@ for i in range(0,numberOfNodes):
     else: 
         listOfVertix.append(v)
     # print(v.x)
-    cv2.circle(map, (v.x,v.y), 3, v.color, thickness=-1)
+    cv2.circle(map, (v.x,v.y), v.radius, v.color, thickness=-1)
 
 #=======================================================================================================================================
 
@@ -104,6 +104,19 @@ def findDistace (p1, p2):
 # DRAW LINE BETWEEN POINTS
 def drawLine(v1,v2,color =(128,0,128), thickness=2):
     cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), color, thickness)
+
+
+def bigBrainAlgo(exploredVertexList,listOfVertix):
+    newConnection = 0 # This will be two different vertexes we will be returning
+    smallestDistance = float('inf')
+    for exploredV in exploredVertexList:
+        for unexploredVertix in listOfVertix:
+            calculateDistance = findDistace(exploredV,unexploredVertix)
+            if calculateDistance < smallestDistance and line_color_intersection(map, exploredV, unexploredVertix) == False:
+                smallestDistance = calculateDistance
+                newConnection = (exploredV,unexploredVertix)
+
+    return newConnection
 
 # FIND THE CLOSEST NODE TO A GRAPH
 def findClosestNodeToGraph(exploredVertexList, listOfVertix):
@@ -127,10 +140,14 @@ def findClosestNodeToGraph(exploredVertexList, listOfVertix):
             newConnection = (exploredV, listOfVertix[index])
             print('NEW CONNECTION MADE')
         
-        
+    
         # Early exit if the distance is zero
         if distance == 0:
             break
+    if newConnection == None:
+        newConnection = bigBrainAlgo(exploredVertexList,listOfVertix)
+
+
 
     return newConnection
 
@@ -141,12 +158,12 @@ def main():
     exploredVertexList = []
 
     # starting index will be the first index of the list (its always random since the list is always randomly generated)
-    startVertex = listOfVertix.pop()
+    startVertex = point(250, 250)
     
     # INSERT A POINT AT A RANDOM SPOT IN THE LIST (this will be replaced by the robot odometry position in gazebo)
     random_index = random.randint(0, len(listOfVertix))
 
-    finishPoint = random.choice(listOfVertix)
+    finishPoint = point(475, 475)
     finishPoint.color=(255, 255, 0)
     
     cv2.circle(map, (startVertex.x,startVertex.y), 6, (0,255,0), thickness=-1)
