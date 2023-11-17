@@ -5,7 +5,7 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-
+# import readImage as RI
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('goal_x', default_value = '0.0', description = 'goal (x)'),
