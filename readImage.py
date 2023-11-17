@@ -13,6 +13,8 @@ class point:
         self.radius = radius
         self.color = (255,0,0)
 
+#=======================================================================================================================================
+
 # USE THIS METHOD TO DETERMINE IF A GENERATED POINT IS ON AN OBSTACLE
 def point_obst_overlap(map, p):
     def is_not_free(x, y):
@@ -64,7 +66,7 @@ def line_color_intersection(map, v1, v2):
     print('NO LINE COLOR INTERSECTION')
     return False
 
-#=========================================================================
+#=======================================================================================================================================
 
 # first need to define the list of generated points
 
@@ -81,7 +83,7 @@ for i in range(0,numberOfNodes):
     # print(v.x)
     cv2.circle(map, (v.x,v.y), 3, v.color, thickness=-1)
 
-#=========================================================================
+#=======================================================================================================================================
 
 # GET THE DISTANCE BETWEEN TWO POINTS
 def findDistace (p1, p2):
@@ -120,23 +122,13 @@ def findClosestNodeToGraph(exploredVertexList, listOfVertix):
 
     return newConnection
 
-# def findClosestNodeToGraph(exploredVertexList,listOfVertix):
-#     newConnection = 0 # This will be two different vertexes we will be returning
-#     smallestDistance = float('inf') 
-#     for exploredV in exploredVertexList:
-#         for unexploredVertix in listOfVertix:
-#             calculateDistance = findDistace(exploredV,unexploredVertix)
-#             if calculateDistance < smallestDistance and line_color_intersection(map, exploredV, unexploredVertix) == False:
-#                 smallestDistance = calculateDistance
-#                 newConnection = (exploredV, unexploredVertix)
-#     return newConnection
-
-
-
+#=======================================================================================================================================
 def main():
     
     # this is essentially our RRT list of nodes 
     exploredVertexList = []
+
+    # starting index will be the first index of the list (its always random since the list is always randomly generated)
     startVertex = listOfVertix.pop()
     
     # INSERT A POINT AT A RANDOM SPOT IN THE LIST (this will be replaced by the robot odometry position in gazebo)
@@ -144,49 +136,42 @@ def main():
 
     finishPoint = random.choice(listOfVertix)
     finishPoint.color=(255, 255, 0)
-    listOfVertix.insert(random_index, finishPoint)
     
-    # REMAINING LIST
-    remainingPoints = []
-
     cv2.circle(map, (startVertex.x,startVertex.y), 6, (0,255,0), thickness=-1)
     cv2.circle(map, (finishPoint.x,finishPoint.y), 6, (255,255,0), thickness=-1)
 
+    listOfVertix.insert(random_index, finishPoint)
     exploredVertexList.append(startVertex)
-    print('List of vertix: ', len(listOfVertix))
 
+    # iterate through the list of points (vertices) until we reach the goal vertex
     while(len(listOfVertix) > 0):
 
+        # graphNode is the node we are searching FROM and newNode is the node we are searching FOR
         graphNode, newNode = findClosestNodeToGraph(exploredVertexList, listOfVertix)
-
 
         # if line_color_intersection(map, graphNode, newNode) == False:
         drawLine(graphNode, newNode) 
         exploredVertexList.append(newNode)
         listOfVertix.remove(newNode)
-        random.shuffle(listOfVertix)
+        # random.shuffle(listOfVertix)
 
 
         print('ELEMENTS IN LIST OF VERTIX: ', len(listOfVertix))
         print('GRAPH NODE: ', graphNode.x, graphNode.y)
         print('NEW NODE: ', newNode.x, newNode.y)
         print('*******NODE ADDED TO RRT*******')
-    # else:
-        #listOfVertix.remove(newNode)
-            
+
+        # check if we have reached the goal            
         if newNode.x == finishPoint.x and newNode.y == finishPoint.y:
             print('FINISH POINT REACHED. BREAK OUT OF LOOP')
             break
         
-        print('\n')
-
-    print('List of vertix remaining: ', len(listOfVertix))    
+        print('\n')  
 
     cv2.imshow('colour-based', map)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    
-    for p in exploredVertexList:
-        print(p.x, p.y)
+#=======================================================================================================================================
 
+# call maain
 main()
