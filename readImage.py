@@ -4,7 +4,7 @@ import math
 import random
 from scipy.spatial import KDTree
 
-numberOfNodes = 500
+numberOfNodes = 250
 
 class point:
     def __init__(self, x, y,next = None, prev = None,radius = 1):
@@ -72,7 +72,8 @@ def line_color_intersection(map, v1, v2):
 
 # first need to define the list of generated points
 
-map = cv2.imread('map2.jpg')
+map = cv2.imread('blueprint.jpg')
+print(np.shape(map))
 
 randomPoints = [(np.random.randint(10, 990), np.random.randint(10, 990)) for _ in range(numberOfNodes)]
 listOfVertix = []
