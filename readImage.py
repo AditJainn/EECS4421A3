@@ -4,12 +4,14 @@ import math
 import random
 from scipy.spatial import KDTree
 
-numberOfNodes = 200
+numberOfNodes = 500
 
 class point:
-    def __init__(self, x, y,radius = 1):
+    def __init__(self, x, y,next = None, prev = None,radius = 1):
         self.x = x
         self.y = y
+        self.next = next
+        self.prev = prev
         self.radius = radius
         self.color = (255,0,0)
 
@@ -91,8 +93,8 @@ def findDistace (p1, p2):
     return distance
 
 # DRAW LINE BETWEEN POINTS
-def drawLine(v1,v2):
-    cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), (128,0,128), thickness=2)
+def drawLine(v1,v2,color =(128,0,128)):
+    cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), color, thickness=2)
 
 # FIND THE CLOSEST NODE TO A GRAPH
 def findClosestNodeToGraph(exploredVertexList, listOfVertix):
@@ -149,6 +151,8 @@ def main():
         # graphNode is the node we are searching FROM and newNode is the node we are searching FOR
         graphNode, newNode = findClosestNodeToGraph(exploredVertexList, listOfVertix)
 
+        graphNode.next = newNode
+        newNode.prev = graphNode
         # if line_color_intersection(map, graphNode, newNode) == False:
         drawLine(graphNode, newNode) 
         exploredVertexList.append(newNode)
@@ -167,6 +171,12 @@ def main():
             break
         
         print('\n')  
+    while(newNode.prev != None):
+        
+        print(f"Location: {newNode.x} , {newNode.y}")
+        drawLine(newNode, newNode.prev,(0,255,255)) 
+        newNode = newNode.prev
+        
 
     cv2.imshow('colour-based', map)
     cv2.waitKey(0)
