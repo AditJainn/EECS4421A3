@@ -126,13 +126,21 @@ def main():
     exploredVertexList = []
     startVertex = listOfVertix.pop()
 
+    finishPoint = random.choice(listOfVertix)
+    finishPoint.color=(255, 255, 0)
+    listOfVertix.append(finishPoint)
+    
+    # REMAINING LIST
+    remainingPoints = []
+
     cv2.circle(map, (startVertex.x,startVertex.y), 6, (0,255,0), thickness=-1)
+    cv2.circle(map, (finishPoint.x,finishPoint.y), 6, (255,255,0), thickness=-1)
 
     exploredVertexList.append(startVertex)
     print('List of vertix: ', len(listOfVertix))
 
-    while(len(listOfVertix) > 0):
-        
+    for v in listOfVertix:
+
         graphNode, newNode = findClosestNodeToGraph(exploredVertexList, listOfVertix)
 
 
@@ -149,8 +157,16 @@ def main():
         else:
             # this node has already been explored so we remove it from our list
             listOfVertix.remove(newNode)
+            remainingPoints.append(newNode)
+            
+        if newNode.x == finishPoint.x and newNode.y == finishPoint.y:
+            print('FINISH POINT REACHED. BREAK OUT OF LOOP')
+            break
+
         print('\n')
 
+
+    print('NUMBER OF UNCONNECTED NODES = ', len(remainingPoints))
     cv2.imshow('colour-based', map)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
