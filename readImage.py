@@ -4,7 +4,7 @@ import math
 import random
 from scipy.spatial import KDTree
 
-numberOfNodes = 250
+numberOfNodes = 1000
 
 # colour scheme
 purple = (86,70,115)
@@ -80,7 +80,7 @@ def line_color_intersection(map, v1, v2):
 
 # first need to define the list of generated points
 
-map = cv2.imread('map2.jpg')
+map = cv2.imread('b6.jpg')
 
 
 randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
@@ -88,7 +88,7 @@ listOfVertix = []
 for i in range(0,numberOfNodes):
     v = point(x = randomPoints[i][0], y = randomPoints[i][1])
     if point_obst_overlap(map,v):
-        v.color = orange 
+        v.color = (0, 255, 255) 
     else: 
         listOfVertix.append(v)
     # print(v.x)
@@ -121,12 +121,13 @@ def findClosestNodeToGraph(exploredVertexList, listOfVertix):
         distance, index = tree.query((exploredV.x, exploredV.y))
 
         #if line_color_intersection(map, exploredV, listOfVertix[index]):
-
         if distance < smallestDistance and line_color_intersection(map, exploredV, listOfVertix[index]) == False:
 
             smallestDistance = distance
             newConnection = (exploredV, listOfVertix[index])
             print('NEW CONNECTION MADE')
+        
+        
         # Early exit if the distance is zero
         if distance == 0:
             break
