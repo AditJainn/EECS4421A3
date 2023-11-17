@@ -4,8 +4,8 @@ import math
 import random
 from scipy.spatial import KDTree
 
-numberOfNodes = 1500
-map = cv2.imread('pentagonDILATED.jpg')
+numberOfNodes = 500
+map = cv2.imread('map.jpg')
 
 # colour scheme
 purple = (86,70,115)
@@ -78,22 +78,6 @@ def line_color_intersection(map, v1, v2):
     return False
 
 #=======================================================================================================================================
-
-# first need to define the list of generated points
-# map = cv2.imread('pentagonMini.jpg')
-
-
-# randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
-# listOfVertix = []
-# for i in range(0,numberOfNodes):
-#     v = point(x = randomPoints[i][0], y = randomPoints[i][1])
-#     if point_obst_overlap(map,v):
-#         v.color = (0, 255, 255) 
-#     else: 
-#         listOfVertix.append(v)
-#     # print(v.x)
-#     cv2.circle(map, (v.x,v.y), v.radius, v.color, thickness=-1)
-
 
 
 #=======================================================================================================================================
@@ -169,7 +153,7 @@ def buildMap():
     return listOfVertix
 
 #=======================================================================================================================================
-def main(start_x = 255, start_y = 255, finish_x = 475, finish_y = 475):
+def mainRead(start_x = 25, start_y = 25, finish_x = 475, finish_y = 475):
     
     # get the list of points
     listOfVertix = buildMap()
@@ -177,6 +161,8 @@ def main(start_x = 255, start_y = 255, finish_x = 475, finish_y = 475):
     # this is essentially our RRT list of nodes 
     exploredVertexList = []
 
+    # RRT list to return to drive_to_goal
+    rrt = []
     # starting index will be the first index of the list (its always random since the list is always randomly generated)
     startVertex = point(start_x, start_y)
     
@@ -219,16 +205,21 @@ def main(start_x = 255, start_y = 255, finish_x = 475, finish_y = 475):
         
         print('\n')  
     while(newNode.prev != None):
-        
+        rrt.append((newNode.x/100.0,newNode.y/100.0))
         print(f"Location: {newNode.x} , {newNode.y}")
         drawLine(newNode, newNode.prev,(0, 0, 255), 4) 
         newNode = newNode.prev
-        
 
     cv2.imshow('colour-based', map)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    for r in rrt:
+        print(r)
+
+    return rrt
+
 #=======================================================================================================================================
 
 # call maain
-main()
+mainRead()
