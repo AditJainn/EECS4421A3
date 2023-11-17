@@ -6,14 +6,22 @@ from scipy.spatial import KDTree
 
 numberOfNodes = 250
 
+# colour scheme
+purple = (86,70,115)
+black = (38,22,27)
+darkBlue = (64,38,42)
+orange = (68,149,242)
+red = (70,78,166)
+
+
 class point:
-    def __init__(self, x, y,next = None, prev = None,radius = 1):
+    def __init__(self, x, y,next = None, prev = None,radius = 10):
         self.x = x
         self.y = y
         self.next = next
         self.prev = prev
         self.radius = radius
-        self.color = (255,0,0)
+        self.color = (127,127,0)
 
 #=======================================================================================================================================
 
@@ -21,7 +29,7 @@ class point:
 def point_obst_overlap(map, p):
     def is_not_free(x, y):
         overlap = False
-        if all(map[y, x] == [0, 0, 0]) or all(map[y, x] == [0, 0, 255]):
+        if all(map[y, x] == [0, 0, 0]):
             overlap = True
         return overlap
 
@@ -72,15 +80,15 @@ def line_color_intersection(map, v1, v2):
 
 # first need to define the list of generated points
 
-map = cv2.imread('blueprint.jpg')
-print(np.shape(map))
+map = cv2.imread('map2.jpg')
 
-randomPoints = [(np.random.randint(10, 990), np.random.randint(10, 990)) for _ in range(numberOfNodes)]
+
+randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
 listOfVertix = []
 for i in range(0,numberOfNodes):
     v = point(x = randomPoints[i][0], y = randomPoints[i][1])
     if point_obst_overlap(map,v):
-        v.color = (0, 0, 255)   # Mark a red dot 
+        v.color = orange 
     else: 
         listOfVertix.append(v)
     # print(v.x)
@@ -94,8 +102,8 @@ def findDistace (p1, p2):
     return distance
 
 # DRAW LINE BETWEEN POINTS
-def drawLine(v1,v2,color =(128,0,128)):
-    cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), color, thickness=2)
+def drawLine(v1,v2,color =(128,0,128), thickness=2):
+    cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), color, thickness)
 
 # FIND THE CLOSEST NODE TO A GRAPH
 def findClosestNodeToGraph(exploredVertexList, listOfVertix):
@@ -175,7 +183,7 @@ def main():
     while(newNode.prev != None):
         
         print(f"Location: {newNode.x} , {newNode.y}")
-        drawLine(newNode, newNode.prev,(0,255,255)) 
+        drawLine(newNode, newNode.prev,(0, 0, 255), 4) 
         newNode = newNode.prev
         
 
