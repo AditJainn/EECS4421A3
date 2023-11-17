@@ -93,31 +93,44 @@ def drawLine(v1,v2):
     cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), (128,0,128), thickness=2)
 
 # FIND THE CLOSEST NODE TO A GRAPH
-def findClosestNodeToGraph(exploredVertexList, listOfVertix):
-    # Convert vertex points to a list of tuples
-    unexploredPoints = [(v.x, v.y) for v in listOfVertix]
+# def findClosestNodeToGraph(exploredVertexList, listOfVertix):
+#     # Convert vertex points to a list of tuples
+#     unexploredPoints = [(v.x, v.y) for v in listOfVertix]
 
-    # Create a KD-tree with unexplored vertices
-    tree = KDTree(unexploredPoints)
+#     # Create a KD-tree with unexplored vertices
+#     tree = KDTree(unexploredPoints)
 
-    smallestDistance = float('inf')
-    newConnection = None
+#     smallestDistance = -1
+#     newConnection = None
 
+#     for exploredV in exploredVertexList:
+#         # Find the nearest neighbor to exploredV in the KD-tree
+#         distance, index = tree.query((exploredV.x, exploredV.y))
+
+#         #if line_color_intersection(map, exploredV, listOfVertix[index]):
+
+#         if distance == -1 or distance < smallestDistance:
+#             if line_color_intersection(map, exploredV, listOfVertix[index]) == False:
+#                 smallestDistance = distance
+#                 newConnection = (exploredV, listOfVertix[index])
+#                 print('NEW CONNECTION MADE')
+#         # Early exit if the distance is zero
+#         if distance == 0:
+#             break
+
+#     return newConnection
+
+def findClosestNodeToGraph(exploredVertexList,listOfVertix):
+    newConnection = 0 # This will be two different vertexes we will be returning
+    smallestDistance = float('inf') 
     for exploredV in exploredVertexList:
-        # Find the nearest neighbor to exploredV in the KD-tree
-        distance, index = tree.query((exploredV.x, exploredV.y))
-
-        #if line_color_intersection(map, exploredV, listOfVertix[index]):
-
-        if distance < smallestDistance:
-            smallestDistance = distance
-            newConnection = (exploredV, listOfVertix[index])
-            print('NEW CONNECTION MADE')
-        # Early exit if the distance is zero
-        if distance == 0:
-            break
-
+        for unexploredVertix in listOfVertix:
+            calculateDistance = findDistace(exploredV,unexploredVertix)
+            if calculateDistance < smallestDistance and line_color_intersection(map, exploredV, unexploredVertix) == False:
+                smallestDistance = calculateDistance
+                newConnection = (exploredV, unexploredVertix)
     return newConnection
+
 
 
 def main():
@@ -125,10 +138,13 @@ def main():
     # this is essentially our RRT list of nodes 
     exploredVertexList = []
     startVertex = listOfVertix.pop()
+    
+    # INSERT A POINT AT A RANDOM SPOT IN THE LIST (this will be replaced by the robot odometry position in gazebo)
+    random_index = random.randint(0, len(listOfVertix))
 
     finishPoint = random.choice(listOfVertix)
     finishPoint.color=(255, 255, 0)
-    listOfVertix.append(finishPoint)
+    listOfVertix.insert(random_index, finishPoint)
     
     # REMAINING LIST
     remainingPoints = []
@@ -139,39 +155,37 @@ def main():
     exploredVertexList.append(startVertex)
     print('List of vertix: ', len(listOfVertix))
 
-    for v in listOfVertix:
+    while(len(listOfVertix) > 0):
 
         graphNode, newNode = findClosestNodeToGraph(exploredVertexList, listOfVertix)
 
 
-        if line_color_intersection(map, graphNode, newNode) == False:
-            drawLine(graphNode, newNode) 
-            exploredVertexList.append(newNode)
-            listOfVertix.remove(newNode)
+        # if line_color_intersection(map, graphNode, newNode) == False:
+        drawLine(graphNode, newNode) 
+        exploredVertexList.append(newNode)
+        listOfVertix.remove(newNode)
+        random.shuffle(listOfVertix)
 
 
-            print('ELEMENTS IN LIST OF VERTIX: ', len(listOfVertix))
-            print('GRAPH NODE: ', graphNode.x, graphNode.y)
-            print('NEW NODE: ', newNode.x, newNode.y)
-            print('*******NODE ADDED TO RRT*******')
-        else:
-            # this node has already been explored so we remove it from our list
-            listOfVertix.remove(newNode)
-            remainingPoints.append(newNode)
+        print('ELEMENTS IN LIST OF VERTIX: ', len(listOfVertix))
+        print('GRAPH NODE: ', graphNode.x, graphNode.y)
+        print('NEW NODE: ', newNode.x, newNode.y)
+        print('*******NODE ADDED TO RRT*******')
+    # else:
+        #listOfVertix.remove(newNode)
             
         if newNode.x == finishPoint.x and newNode.y == finishPoint.y:
             print('FINISH POINT REACHED. BREAK OUT OF LOOP')
             break
-
+        
         print('\n')
 
+    print('List of vertix remaining: ', len(listOfVertix))    
 
-    print('NUMBER OF UNCONNECTED NODES = ', len(remainingPoints))
     cv2.imshow('colour-based', map)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
-    print('List of vertix: ', len(listOfVertix))    
     for p in exploredVertexList:
         print(p.x, p.y)
 
