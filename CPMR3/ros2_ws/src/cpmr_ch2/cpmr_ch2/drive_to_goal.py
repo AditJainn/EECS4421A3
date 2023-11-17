@@ -8,6 +8,8 @@ from rcl_interfaces.msg import SetParametersResult
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist, Pose, Point, Quaternion
 from nav_msgs.msg import Odometry
+import time
+import readImage
 
 def euler_from_quaternion(quaternion):
     """
@@ -155,10 +157,18 @@ def makeMap ():
 def main(args=None):
     rclpy.init(args=args)
     node = MoveToGoal()
-    node._goal_x = 3.0
+    # node._goal_x = 3.0
     # 
     # Give me a list of goals now ,
     # Get List ()
+    # getList(node._cur_x, node._cur_y)
+    path = mainRead(node._cur_x, node._cur_y)
+    for i in range(len(path),0,-1):
+        
+        node._goal_x=  path[i][0]
+        node._goal_y = path[i][1]
+        time.sleep(5)
+        
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
