@@ -5,6 +5,7 @@ import random
 from scipy.spatial import KDTree
 
 numberOfNodes = 1500
+map = cv2.imread('pentagonDILATED.jpg')
 
 # colour scheme
 purple = (86,70,115)
@@ -79,20 +80,21 @@ def line_color_intersection(map, v1, v2):
 #=======================================================================================================================================
 
 # first need to define the list of generated points
+# map = cv2.imread('pentagonMini.jpg')
 
-map = cv2.imread('pentagonMini.jpg')
+
+# randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
+# listOfVertix = []
+# for i in range(0,numberOfNodes):
+#     v = point(x = randomPoints[i][0], y = randomPoints[i][1])
+#     if point_obst_overlap(map,v):
+#         v.color = (0, 255, 255) 
+#     else: 
+#         listOfVertix.append(v)
+#     # print(v.x)
+#     cv2.circle(map, (v.x,v.y), v.radius, v.color, thickness=-1)
 
 
-randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
-listOfVertix = []
-for i in range(0,numberOfNodes):
-    v = point(x = randomPoints[i][0], y = randomPoints[i][1])
-    if point_obst_overlap(map,v):
-        v.color = (0, 255, 255) 
-    else: 
-        listOfVertix.append(v)
-    # print(v.x)
-    cv2.circle(map, (v.x,v.y), v.radius, v.color, thickness=-1)
 
 #=======================================================================================================================================
 
@@ -146,24 +148,42 @@ def findClosestNodeToGraph(exploredVertexList, listOfVertix):
             break
     if newConnection == None:
         newConnection = bigBrainAlgo(exploredVertexList,listOfVertix)
-
-
-
     return newConnection
 
+# HERE WE WILL GENERATE RANDOM POINTS AND ADD THEM TO A LIST OF POINTS
+def buildMap():
+    # first need to define the list of generated points
+    randomPoints = [(np.random.randint(10, map.shape[1]-10), np.random.randint(10, map.shape[0]-10)) for _ in range(numberOfNodes)]
+    listOfVertix = []
+    # now, populate the map
+    for i in range(0,numberOfNodes):
+        v = point(x = randomPoints[i][0], y = randomPoints[i][1])
+        # if a point is generated on an obstacle, change its colour and do NOT add it to new list
+        if point_obst_overlap(map,v):
+            v.color = (0, 255, 255) 
+        else: 
+            listOfVertix.append(v)
+        # print(v.x)
+        cv2.circle(map, (v.x,v.y), v.radius, v.color, thickness=-1)
+
+    return listOfVertix
+
 #=======================================================================================================================================
-def main():
+def main(start_x = 255, start_y = 255, finish_x = 475, finish_y = 475):
     
+    # get the list of points
+    listOfVertix = buildMap()
+
     # this is essentially our RRT list of nodes 
     exploredVertexList = []
 
     # starting index will be the first index of the list (its always random since the list is always randomly generated)
-    startVertex = point(250, 250)
+    startVertex = point(start_x, start_y)
     
     # INSERT A POINT AT A RANDOM SPOT IN THE LIST (this will be replaced by the robot odometry position in gazebo)
     random_index = random.randint(0, len(listOfVertix))
 
-    finishPoint = point(475, 475)
+    finishPoint = point(finish_x, finish_y)
     finishPoint.color=(255, 255, 0)
     
     cv2.circle(map, (startVertex.x,startVertex.y), 6, (0,255,0), thickness=-1)
