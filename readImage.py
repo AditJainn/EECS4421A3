@@ -93,43 +93,43 @@ def drawLine(v1,v2):
     cv2.line(map, (v1.x,v1.y), (v2.x,v2.y), (128,0,128), thickness=2)
 
 # FIND THE CLOSEST NODE TO A GRAPH
-# def findClosestNodeToGraph(exploredVertexList, listOfVertix):
-#     # Convert vertex points to a list of tuples
-#     unexploredPoints = [(v.x, v.y) for v in listOfVertix]
+def findClosestNodeToGraph(exploredVertexList, listOfVertix):
+    # Convert vertex points to a list of tuples
+    unexploredPoints = [(v.x, v.y) for v in listOfVertix]
 
-#     # Create a KD-tree with unexplored vertices
-#     tree = KDTree(unexploredPoints)
+    # Create a KD-tree with unexplored vertices
+    tree = KDTree(unexploredPoints)
 
-#     smallestDistance = -1
-#     newConnection = None
+    smallestDistance = float('inf')
+    newConnection = None
 
-#     for exploredV in exploredVertexList:
-#         # Find the nearest neighbor to exploredV in the KD-tree
-#         distance, index = tree.query((exploredV.x, exploredV.y))
-
-#         #if line_color_intersection(map, exploredV, listOfVertix[index]):
-
-#         if distance == -1 or distance < smallestDistance:
-#             if line_color_intersection(map, exploredV, listOfVertix[index]) == False:
-#                 smallestDistance = distance
-#                 newConnection = (exploredV, listOfVertix[index])
-#                 print('NEW CONNECTION MADE')
-#         # Early exit if the distance is zero
-#         if distance == 0:
-#             break
-
-#     return newConnection
-
-def findClosestNodeToGraph(exploredVertexList,listOfVertix):
-    newConnection = 0 # This will be two different vertexes we will be returning
-    smallestDistance = float('inf') 
     for exploredV in exploredVertexList:
-        for unexploredVertix in listOfVertix:
-            calculateDistance = findDistace(exploredV,unexploredVertix)
-            if calculateDistance < smallestDistance and line_color_intersection(map, exploredV, unexploredVertix) == False:
-                smallestDistance = calculateDistance
-                newConnection = (exploredV, unexploredVertix)
+        # Find the nearest neighbor to exploredV in the KD-tree
+        distance, index = tree.query((exploredV.x, exploredV.y))
+
+        #if line_color_intersection(map, exploredV, listOfVertix[index]):
+
+        if distance < smallestDistance and line_color_intersection(map, exploredV, listOfVertix[index]) == False:
+
+            smallestDistance = distance
+            newConnection = (exploredV, listOfVertix[index])
+            print('NEW CONNECTION MADE')
+        # Early exit if the distance is zero
+        if distance == 0:
+            break
+
     return newConnection
+
+# def findClosestNodeToGraph(exploredVertexList,listOfVertix):
+#     newConnection = 0 # This will be two different vertexes we will be returning
+#     smallestDistance = float('inf') 
+#     for exploredV in exploredVertexList:
+#         for unexploredVertix in listOfVertix:
+#             calculateDistance = findDistace(exploredV,unexploredVertix)
+#             if calculateDistance < smallestDistance and line_color_intersection(map, exploredV, unexploredVertix) == False:
+#                 smallestDistance = calculateDistance
+#                 newConnection = (exploredV, unexploredVertix)
+#     return newConnection
 
 
 
