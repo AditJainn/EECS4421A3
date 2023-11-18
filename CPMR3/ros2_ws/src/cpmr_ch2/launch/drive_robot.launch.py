@@ -8,12 +8,13 @@ from launch_ros.actions import Node
 # import readImage as RI
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument('goal_x', default_value = '0.0', description = 'goal (x)'),
-        DeclareLaunchArgument('goal_y', default_value = '0.0', description = 'goal (y)'),
+        DeclareLaunchArgument('goal_x', default_value = '24.0', description = 'goal (x)'),
+        DeclareLaunchArgument('goal_y', default_value = '24.0', description = 'goal (y)'),
         DeclareLaunchArgument('goal_t', default_value = '0.0', description = 'goal (t)'),
         DeclareLaunchArgument('max_vel', default_value = '0.0', description = 'maxium Velocity '),
         DeclareLaunchArgument('max_gain', default_value = '0.0', description = 'max Gain'),
         DeclareLaunchArgument('newGoal', default_value = "0.0&0.0", description = 'newGoal'),
+        # DeclareLaunchArgument('createMap', default_value = "a", description = 'createMap'),
         
         Node(
             package = 'cpmr_ch2',
@@ -26,6 +27,7 @@ def generate_launch_description():
                 {'max_vel' : LaunchConfiguration('max_vel')},
                 {'max_gain' : LaunchConfiguration('max_gain')},
                 {'newGoal' : LaunchConfiguration('newGoal')},
+                # {'createMap' : LaunchConfiguration('createMap')},
             ],
         ),
     ])
