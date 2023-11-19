@@ -7,7 +7,8 @@ import time
 from scipy.spatial import KDTree
 
 numberOfNodes = 1500
-map = cv2.imread('rotated_dllated.jpg')
+fileName = "NewFloorPlanEddited.jpg"
+map = cv2.imread(fileName)
 
 # colour scheme
 purple = (86,70,115)
@@ -152,6 +153,7 @@ def buildMap():
         # print(v.x)
         cv2.circle(map, (v.x,v.y), v.radius, v.color, thickness=-1)
 
+    cv2.imwrite("_PrelineMap"+ fileName ,map)
     return listOfVertix
 
 #=======================================================================================================================================
@@ -207,18 +209,20 @@ def mainRead(start_x = 250, start_y = 250, finish_x = 15, finish_y = 15):
         
         print('\n')  
     while(newNode.prev != None):
-        rrt.append((newNode.x/10.0,newNode.y/10.0))
+        pointInX = (newNode.x/10.0)
+        pointInY = 63.5- (newNode.y/10.0)
+        rrt.append((pointInX,pointInY))
         print(f"Location: {newNode.x} , {newNode.y}")
         drawLine(newNode, newNode.prev,(0, 0, 255), 4) 
         newNode = newNode.prev
 
-    cv2.imwrite("output_image.jpg",map)
+    cv2.imwrite("_output_image"+fileName,map)
     # cv2.imshow('colour-based', map)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    for r in rrt:
-        print(r)
+    # for r in rrt:
+    #     print(r)
 
     return rrt
 
@@ -235,20 +239,24 @@ def movingInRos(listOfNodes):
 
     command = "" 
     listOfNodes.reverse()
-    for r in listOfNodes:
-        print(r)
+    
+    with open('wayPoints.txt', 'w') as file:
+        # Write content to the file
+        for r in listOfNodes:
+            file.write(f'{r}\n')
+
     print("\n\n\nWORKING ON MOVEMENT \n\n\n")
     for i in listOfNodes:
+        print(f"{i[0]}, {i[1]}")
         command = f"ros2 param set /drive_to_goal newGoal \"{i[0]} & {i[1]}\"" 
         result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         print("Errors:", result.stderr)
         # Print the return code
         print("Return code:", result.returncode)
         print("Output:", result.stdout)
-        time.sleep(5)
-def parseFiles(): 
-    pass
-# call maain
-listOfNodes = mainRead()
+        time.sleep(1.0)
+# def parseFiles(): 
+#     pass
+listOfNodes = mainRead(start_x=150,start_y=500,finish_x=600,finish_y=350)
 x = input("____________________\n PRESS TO CONINTUE \n________________\n")
 movingInRos(listOfNodes)
